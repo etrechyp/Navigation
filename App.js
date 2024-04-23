@@ -3,8 +3,12 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, Button } from "react-native";
 import { createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
+import { createBottomTabNavigator } from "react-navigation-tabs";
+import { Ionicons } from '@expo/vector-icons'
 
 const Logo = () => <Text>A logo</Text>;
+
+console.log(Ionicons)
 
 const HomeScreen = ({ navigation }) => {
     return (
@@ -52,7 +56,7 @@ DetailsScreen.navigationOptions = ({ navigation }) => {
         title: navigation.getParam("title", "loading..."),
         headerRight: (
             <Button
-                onPress={navigation.navigate('ThisModal')}
+                onPress={navigation.navigate("ThisModal")}
                 title=" Add 1"
                 color="#555"
             />
@@ -60,7 +64,7 @@ DetailsScreen.navigationOptions = ({ navigation }) => {
     };
 };
 
-const AppNavigator = createStackNavigator(
+const AppNavigator = createBottomTabNavigator(
     {
         Home: {
             screen: HomeScreen,
@@ -71,25 +75,43 @@ const AppNavigator = createStackNavigator(
     },
     {
         initialRouteName: "Home",
-        defaultNavigationOptions: {
-            headerStyle: {
-                backgroundColor: "#ccc",
+        defaultNavigationOptions: ({ navigation }) => ({
+            tabBarIcon: ({ focused, horizontal, tintColor}) => {
+              const {routeName} = navigation.state
+              let iconName
+              if (routeName === "Home") {
+                iconName = `information-circle${focused ? '' : '-outline'}`
+              } else {
+                iconName = `options`
+              }
+
+              return <Ionicons name={iconName} size={20}tintColor={tintColor} />
             },
-            headerTintColor: "#222",
-            headerTitleStyle: {
-                fontWeight: "500",
+            tabBarOptions: {
+                activeTintColor:
+                    navigation.state.routeName == "Home" ? "red" : "green",
+                inactiveTintColor: "#ccc",
+                labelStyle: {
+                    fontSize: 16,
+                },
+                style: {
+                    backgroundColor: "#fec",
+                },
             },
-        },
+        }),
     }
 );
 
-const RootStack = createStackNavigator({
-  Main: AppNavigator,
-  ThisModal: () => <Text>this is a modal</Text>
-},{
-  mode: 'modal',
-  headerMode: 'none'
-})
+const RootStack = createStackNavigator(
+    {
+        Main: AppNavigator,
+        // ThisModal: () => <Text>this is a modal</Text>
+    },
+    {
+        mode: "modal",
+        headerMode: "none",
+    }
+);
 
 export default createAppContainer(RootStack);
 
